@@ -693,6 +693,10 @@ p a:hover {
     background: rgba(4, 10, 22, 0.42);
 }
 
+/* Hide CSS fallback plasma when canvas version is active */
+#sidebar.plasma-enabled::before { display: none; }
+
+
 /* Keep page background consistent during iOS overscroll */
 html, body {
     background: #0b1020 !important; /* overrides earlier white */
