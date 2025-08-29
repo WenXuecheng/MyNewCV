@@ -36,32 +36,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
     setLanguage(preferredLanguage);
 
-    // --- Dynamic Gradient Background ---
+    // --- Galaxy Background ---
     const sidebar = document.getElementById('sidebar');
-    const startColor = [58, 12, 163]; // Deep Purple
-    const endColor = [0, 180, 216];   // Bright Cyan
+    sidebar.style.backgroundColor = '#050505';
 
-    let ticking = false;
+    // --- Galaxy Effect (inspired by reactbits.dev/backgrounds/galaxy) ---
+    const canvas = document.createElement('canvas');
+    canvas.id = 'galaxy-canvas';
+    Object.assign(canvas.style, {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0
+    });
+    sidebar.prepend(canvas);
 
-    const updateGradient = () => {
-        const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollPercent = Math.min(window.scrollY / scrollMax, 1);
-
-        const r = Math.floor(startColor[0] + (endColor[0] - startColor[0]) * scrollPercent);
-        const g = Math.floor(startColor[1] + (endColor[1] - startColor[1]) * scrollPercent);
-        const b = Math.floor(startColor[2] + (endColor[2] - startColor[2]) * scrollPercent);
-
-        sidebar.style.background = `linear-gradient(135deg, rgb(${r}, ${g}, ${b}), #121212 80%)`;
-        ticking = false;
-    };
-
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(updateGradient);
-            ticking = true;
+    // Keep sidebar content above the canvas
+    Array.from(sidebar.children).forEach(child => {
+        if (child !== canvas) {
+            child.style.position = 'relative';
+            child.style.zIndex = 1;
         }
     });
 
-    // Set initial gradient
-    updateGradient();
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+    const STAR_COUNT = 200;
+
+    const initGalaxy = () => {
+        canvas.width = sidebar.clientWidth;
+        canvas.height = sidebar.clientHeight;
+        stars = [];
+        const maxRadius = Math.max(canvas.width, canvas.height) / 2;
+        for (let i = 0; i < STAR_COUNT; i++) {
+            stars.push({
+                angle: Math.random() * Math.PI * 2,
+                radius: Math.random() * maxRadius,
+                speed: 0.0005 + Math.random() * 0.0015,
+                size: Math.random() * 1.5 + 0.5,
+                hue: 200 + Math.random() * 140 // blue to magenta
+            });
+        }
+    };
+
+    window.addEventListener('resize', initGalaxy);
+    initGalaxy();
+
+    const drawGalaxy = () => {
+        ctx.fillStyle = 'rgba(5,5,10,0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.globalCompositeOperation = 'lighter';
+        stars.forEach(star => {
+            star.angle += star.speed;
+            const x = canvas.width / 2 + Math.cos(star.angle) * star.radius;
+            const y = canvas.height / 2 + Math.sin(star.angle) * star.radius * 0.6;
+
+            ctx.beginPath();
+            ctx.fillStyle = `hsla(${star.hue}, 80%, 80%, 0.8)`;
+            ctx.arc(x, y, star.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        ctx.globalCompositeOperation = 'source-over';
+        requestAnimationFrame(drawGalaxy);
+    };
+
+    drawGalaxy();
 });
