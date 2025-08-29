@@ -35,33 +35,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Language Setup ---
     const preferredLanguage = localStorage.getItem('preferredLanguage') || 'en';
     setLanguage(preferredLanguage);
-
-    // --- Dynamic Gradient Background ---
-    const sidebar = document.getElementById('sidebar');
-    const startColor = [58, 12, 163]; // Deep Purple
-    const endColor = [0, 180, 216];   // Bright Cyan
-
-    let ticking = false;
-
-    const updateGradient = () => {
-        const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-        const scrollPercent = Math.min(window.scrollY / scrollMax, 1);
-
-        const r = Math.floor(startColor[0] + (endColor[0] - startColor[0]) * scrollPercent);
-        const g = Math.floor(startColor[1] + (endColor[1] - startColor[1]) * scrollPercent);
-        const b = Math.floor(startColor[2] + (endColor[2] - startColor[2]) * scrollPercent);
-
-        sidebar.style.background = `linear-gradient(135deg, rgb(${r}, ${g}, ${b}), #121212 80%)`;
-        ticking = false;
-    };
-
-    window.addEventListener('scroll', () => {
-        if (!ticking) {
-            window.requestAnimationFrame(updateGradient);
-            ticking = true;
-        }
-    });
-
-    // Set initial gradient
-    updateGradient();
 });
