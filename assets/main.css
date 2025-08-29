@@ -721,6 +721,10 @@ p a:hover {
   margin-top: auto;
   padding-top: 20px;
 }
+/* Make the copyright line lighter */
+.sidebar-info-list .websiteBy .plug {
+  opacity: 0.2; /* 80% transparent */
+}
 .lang-switcher {
   padding: 10px 0;
 }
@@ -1310,4 +1314,3 @@ h3 strong,
 		margin: 0 7px 0 0;
 	}
 }
-
