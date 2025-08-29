@@ -55,11 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Moving blob parameters
         const blobs = [
-            { r: 260, hue: 178, sat: 95, alpha: 0.65, spd: 0.6, px: 0.15, py: 0.20 }, // cyan/teal
-            { r: 230, hue: 265, sat: 86, alpha: 0.60, spd: 0.5, px: 0.85, py: 0.15 }, // purple
-            { r: 230, hue: 345, sat: 85, alpha: 0.55, spd: 0.7, px: 0.30, py: 0.85 }, // pink
-            { r: 250, hue: 50,  sat: 96, alpha: 0.45, spd: 0.4, px: 0.75, py: 0.75 }, // yellow
-            { r: 220, hue: 205, sat: 90, alpha: 0.50, spd: 0.55, px: 0.50, py: 0.05 }  // blue
+            { r: 300, hue: 200, sat: 88, alpha: 0.55, spd: 0.95 }, // deep blue
+            { r: 280, hue: 185, sat: 90, alpha: 0.55, spd: 1.05 }, // teal
+            { r: 290, hue: 265, sat: 86, alpha: 0.55, spd: 0.90 }, // purple
+            { r: 270, hue: 320, sat: 85, alpha: 0.52, spd: 1.10 }, // magenta
+            { r: 310, hue: 30,  sat: 92, alpha: 0.50, spd: 1.00 }  // amber
         ];
 
         let w = 0, h = 0, t0 = performance.now();
@@ -88,17 +88,26 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.globalCompositeOperation = 'lighter';
             for (let i = 0; i < blobs.length; i++) {
                 const b = blobs[i];
-                const k = t / 1000 * b.spd;
-                const x = (0.5 + 0.45 * Math.sin(k + i)) * w * b.px + (1 - b.px) * 0.5 * w;
-                const y = (0.5 + 0.45 * Math.cos(k * 0.9 + i * 1.7)) * h * b.py + (1 - b.py) * 0.5 * h;
+                const sp = b.spd;
+                const K = t / 1000;
+                // Wider motion range
+                const ampX = 0.65;
+                const ampY = 0.60;
+                const x = (0.5 + ampX * Math.sin(K * sp + i * 0.9)) * w;
+                const y = (0.5 + ampY * Math.cos(K * sp * 0.92 + i * 1.1)) * h;
 
-                const grad = ctx.createRadialGradient(x, y, 0, x, y, b.r);
-                // center color
-                grad.addColorStop(0, `hsla(${b.hue}, ${b.sat}%, 60%, ${b.alpha})`);
+                // Vary radius and brightness over time for broader light change
+                const r = b.r * (0.88 + 0.28 * Math.sin(K * sp * 1.35 + i * 0.7));
+                const alpha = b.alpha * (0.60 + 0.40 * Math.sin(K * sp * 1.7 + i * 0.5 + 0.5));
+
+                const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+                // darker lightness, multi-hue palette
+                grad.addColorStop(0, `hsla(${b.hue}, ${b.sat}%, 48%, ${Math.max(0, alpha)})`);
+                grad.addColorStop(0.6, `hsla(${b.hue}, ${b.sat}%, 35%, ${Math.max(0, alpha * 0.5)})`);
                 grad.addColorStop(1, 'hsla(0, 0%, 0%, 0)');
                 ctx.fillStyle = grad;
                 ctx.beginPath();
-                ctx.arc(x, y, b.r, 0, Math.PI * 2);
+                ctx.arc(x, y, r, 0, Math.PI * 2);
                 ctx.fill();
             }
             ctx.globalCompositeOperation = 'source-over';
